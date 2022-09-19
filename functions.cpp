@@ -15,6 +15,7 @@ bool ModifyContent(const char* fileName, int offset, const char* buf)
 	if (fd != -1) {
 		int res=lseek(fd, offset, SEEK_SET);
 		if (res != -1) {
+			cout << sizeof(buf);
 			int nr = write(fd, buf, sizeof(buf));
 			close(fd);
 			if (nr != -1) return true;
@@ -30,9 +31,10 @@ bool ModifyContent(const char* fileName, int offset, const char* buf)
 
 bool ChangeDirectory(const char* pathname)
 {
+	cout << "Former directory:" << getcwd(NULL, 0) << endl;
 	// 成功返回0，失败返回-1
 	if (!chdir(pathname)) {
-		cout << "当前目录：" << getcwd(NULL, 0) << endl;
+		cout << "Current directory:" << getcwd(NULL, 0) << endl;
 		return true;
 	}
 	else {
@@ -43,8 +45,9 @@ bool ChangeDirectory(const char* pathname)
 bool ChangeDirectory(int fd)
 {
 	// 成功返回0，失败返回-1
+	cout << "Former directory:" << getcwd(NULL, 0) << endl;
 	if (!fchdir(fd)) {
-		cout << "当前目录：" << getcwd(NULL, 0) << endl;
+		cout << "Current directory:" << getcwd(NULL, 0) << endl;
 		return true;
 	}
 	else {
@@ -65,27 +68,24 @@ bool CheckIsFileOrDir(const char* name)
 			if (!(dir = opendir(name))) return false;
 
 			while ((file = readdir(dir)) != NULL) {
-				if (strncmp(file->d_name, ".", 1) == 0)
-					continue;
-				if(!stat(file->d_name, &st))
-					if (!S_ISDIR(st.st_mode))
-						cout << file->d_name << endl;
+				if (strncmp(file->d_name, ".", 1) != 0)
+					cout << file->d_name << " ";
 			}
-
+			cout << endl;
 			return true;
 		}
 		else {
 			if (st.st_mode & S_IROTH)
 			{
-				cout << "该文件只读" << endl;
+				cout << "Read only file." << endl;
 			}
 			if (st.st_mode & S_IWOTH)
 			{
-				cout << "该文件只写" << endl;
+				cout << "Write only file." << endl;
 			}
 			if (st.st_mode & S_IXOTH)
 			{
-				cout << "该文件读写" << endl;
+				cout << "Read write file." << endl;
 			}
 			return true;
 		}
